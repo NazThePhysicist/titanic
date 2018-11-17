@@ -7,34 +7,42 @@ output: html_document
 
 
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r , message=FALSE, warning=FALSE} 
+library(dplyr)
+```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 titanic = read.csv("titanic3.csv")
 View(titanic)
+```
+The embarked column has some missing values, which are known to correspond to passengers who actually embarked at Southampton. Find the missing values and replace them with S. (Caution: Sometimes a missing value might be read into R as a blank or empty string.)
+```{r , message=FALSE, warning=FALSE}
 df <- data.frame(titanic)
 View(df)
-library(dplyr)
-#The embarked column has some missing values, which are known to correspond to passengers who actually embarked at Southampton. Find the missing values and replace them with S. (Caution: Sometimes a missing value might be read into R as a blank or empty string.)
+
+
 embarked <- df %>% mutate(embarked, gsub("^$", "S", embarked))
 ```
+A lot of the values in the Age column are missing. While there are many ways to fill these missing values, using the mean or median of the rest of the values is quite common in such cases. Calculate the mean of the Age column and use that value to populate the missing values. 
 ```{r}
-# A lot of the values in the Age column are missing. While there are many ways to fill these missing values, using the mean or median of the rest of the values is quite common in such cases. Calculate the mean of the Age column and use that value to populate the missing values
 print(mean(df$age, na.rm= TRUE))
 df <- df %>% mutate(age = ifelse(is.na(age), mean(df$age, na.rm= TRUE), age))
 View(df)
 
 ```
+We look at the distribution of passengers in different lifeboats, but as we know, many passengers did not make it to a boat. This means that there are a lot of missing values in the boat column. Fill these empty slots with a dummy value e.g. the string 'None' or 'NA'. 
 ```{r}
-# We look at the distribution of passengers in different lifeboats, but as we know, many passengers did not make it to a boat. This means that there are a lot of missing values in the boat column. Fill these empty slots with a dummy value e.g. the string 'None' or 'NA'
 
 df <- df %>% mutate(boat = gsub("^$", "NA", boat))
  View(df)
 
-
 ```
-```{r}
-# Notice that many passengers don’t have a cabin number associated with them. We created a new column has_cabin_number which has 1 if there is a cabin number, and 0 otherwise.
 
+Notice that many passengers do not have a cabin number associated with them. We created a new column has_cabin_number which has 1 if there is a cabin number, and 0 otherwise.
+```{r}
 df$has_cabin_number <- ifelse(grepl("^$", df$cabin), 0, 1)
 View(df)
 
